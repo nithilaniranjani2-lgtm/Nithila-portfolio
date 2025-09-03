@@ -1,0 +1,236 @@
+// app.js — builds the whole portfolio using only JavaScript
+
+// --- Inject CSS (as a single <style> block) ---
+const css = `
+  :root { --max-width: 900px; --section-pad: 20px; }
+  *{box-sizing:border-box}
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    background: #f7f9fc;
+  }
+  header {
+    background: white;
+    text-align: center;
+    padding: 2rem 1rem;
+    border-bottom: 2px solid #000;
+    overflow: hidden;
+  }
+  .dancing span {
+    display:inline-block;
+    font-size:2.5rem;
+    font-weight:700;
+    animation: dance 1.5s infinite;
+  }
+  .dancing span:nth-child(odd){animation-delay:0.08s;}
+  .dancing span:nth-child(even){animation-delay:0.25s;}
+  @keyframes dance {
+    0%{transform:translateY(0); color: #e11;}
+    25%{transform:translateY(-10px); color: #0a0;}
+    50%{transform:translateY(0); color: #e11;}
+    75%{transform:translateY(10px); color: #0a0;}
+    100%{transform:translateY(0); color: #e11;}
+  }
+  .train {
+    display:inline-block;
+    font-size:1.25rem;
+    font-weight:700;
+    color: darkred;
+    white-space:nowrap;
+    animation: trainMove 8s linear infinite;
+    margin-top:0.5rem;
+  }
+  @keyframes trainMove {
+    0%{transform:translateX(-120%);} 100%{transform:translateX(120%);}
+  }
+  nav{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    background:#333;
+    padding:6px 10px;
+  }
+  nav a{
+    color:#fff;
+    padding:10px 16px;
+    text-decoration:none;
+    border-radius:6px;
+    font-weight:600;
+  }
+  nav a:hover{ background:#4b4b4b; }
+
+  main{ padding:28px 12px 60px; }
+
+  section{
+    padding: var(--section-pad);
+    max-width: var(--max-width);
+    margin:20px auto;
+    border:3px solid black;
+    background: skyblue;
+    border-radius: 50px;
+    text-align:left;
+  }
+  section h2{
+    color: maroon;
+    text-align:center;
+    margin:0 0 10px 0;
+    font-size:1.5rem;
+  }
+  section p, .project p{
+    color: #000;
+    font-family: Georgia, serif;
+    margin:0.4rem 0;
+  }
+  .project{
+    background:#fff;
+    padding:12px;
+    margin:10px auto;
+    border-radius:10px;
+    border:1px solid #ccc;
+    max-width: calc(var(--max-width) - 80px);
+  }
+  form{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-items:center;
+  }
+  input, textarea, button{
+    padding:10px;
+    font-size:1rem;
+    border-radius:6px;
+    border:1px solid #ccc;
+    width:80%;
+    max-width:420px;
+  }
+  textarea{ min-height:120px; resize:vertical; }
+  button{
+    background:#4CAF50;
+    color:#fff;
+    border:none;
+    cursor:pointer;
+    padding:11px 18px;
+    font-weight:700;
+  }
+  button:hover{ background:#45a049; }
+  footer{
+    text-align:center;
+    padding:12px 10px;
+    background:#333;
+    color:#fff;
+    margin-top:22px;
+  }
+
+  /* small screens */
+  @media (max-width:600px){
+    .dancing span{ font-size:1.8rem; }
+    :root{ --max-width: 92%; }
+    .project{ max-width: 100%; }
+  }
+`;
+const styleEl = document.createElement('style');
+styleEl.textContent = css;
+document.head.appendChild(styleEl);
+
+// --- Helper to create elements easily ---
+function el(tag, props = {}, children = []) {
+  const e = document.createElement(tag);
+  for (const k in props) {
+    if (k === 'class') e.className = props[k];
+    else if (k === 'html') e.innerHTML = props[k];
+    else if (k === 'text') e.textContent = props[k];
+    else e.setAttribute(k, props[k]);
+  }
+  (Array.isArray(children) ? children : [children]).forEach(c => {
+    if (!c && c !== 0) return;
+    e.append(typeof c === 'string' ? document.createTextNode(c) : c);
+  });
+  return e;
+}
+
+// --- Build header ---
+const header = el('header');
+const nameH1 = el('h1', { class: 'dancing' });
+[... "Nithila Niranjani .M"].forEach(ch => nameH1.appendChild(el('span', { text: ch })));
+const sub = el('p', { class: 'train', text: '🚂 Computer Science Student 🚂' });
+header.append(nameH1, sub);
+document.body.appendChild(header);
+
+// --- Nav ---
+const nav = el('nav');
+['About','Projects','Contact'].forEach(item=>{
+  const a = el('a', { href: '#' + item.toLowerCase(), text: item });
+  nav.appendChild(a);
+});
+document.body.appendChild(nav);
+
+// --- Main container ---
+const main = el('main');
+document.body.appendChild(main);
+
+// --- Sections content data (easy to update) ---
+const projectsData = [
+  { title: 'Weather App', desc: 'A simple weather application using OpenWeatherMap API.' },
+  { title: 'Portfolio Website', desc: 'This portfolio is created entirely with JavaScript.' }
+];
+
+// About section
+const aboutSec = el('section', { id: 'about' }, [
+  el('h2', { text: 'About Me' }),
+  el('p', { text: 'I am a passionate Computer Science student interested in web development, machine learning, and open-source projects.' })
+]);
+main.appendChild(aboutSec);
+
+// Projects section
+const projSec = el('section', { id: 'projects' });
+projSec.appendChild(el('h2', { text: 'Projects' }));
+projectsData.forEach(p=>{
+  const card = el('div', { class: 'project' }, [
+    el('h3', { text: p.title }),
+    el('p', { text: p.desc })
+  ]);
+  projSec.appendChild(card);
+});
+main.appendChild(projSec);
+
+// Contact section
+const contactSec = el('section', { id: 'contact' });
+const form = el('form', { id: 'contactForm' }, [
+  el('h2', { text: 'Contact Me' }),
+  el('input', { type: 'text', placeholder: 'Nithila Niranjani .M', required: '' }),
+  el('input', { type: 'email', placeholder: 'nithilaniranjani2@gmail.com', required: '' }),
+  el('textarea', { placeholder: 'Your Message', required: '' }),
+  el('button', { type: 'submit', text: 'Send' }),
+  el('p', { id: 'formStatus' })
+]);
+contactSec.appendChild(form);
+main.appendChild(contactSec);
+
+// Footer
+const footer = el('footer', {}, [ '© 2025 Nithila Niranjani .M. All rights reserved.' ]);
+document.body.appendChild(footer);
+
+// --- Form submit handling (client-side only) ---
+form.addEventListener('submit', (ev) => {
+  ev.preventDefault();
+  const status = document.getElementById('formStatus');
+  status.textContent = '✅ Thank you! Your message has been sent.';
+  status.style.marginTop = '8px';
+  status.style.fontWeight = '700';
+  // Reset fields
+  form.reset();
+  // Clear message after 4 seconds
+  setTimeout(() => { status.textContent = ''; }, 4000);
+});
+
+// --- Optional: smooth scrolling for nav links ---
+document.querySelectorAll('nav a').forEach(a=>{
+  a.addEventListener('click', e=>{
+    e.preventDefault();
+    const id = a.getAttribute('href').slice(1);
+    const tgt = document.getElementById(id);
+    if (tgt) tgt.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
